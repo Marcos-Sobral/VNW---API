@@ -37,23 +37,24 @@ def init_db():
 init_db()
 
 @app.route("/livrosdoados", methods=["GET"])
-def livrosdoados():
+def listar_livros():
     with sqlite3.connect("database.db") as conn:
-        cursor = conn.execute(f"""
-        SELECT titulo, categoria, autor, image_url FROM livros;
-""")
-    livros = cursor.fetchall()
+        livros = conn.execute("""select * from livros""").fetchall()
     
-    # Verificando o tipo de 'livros' no console
-    print(type(livros))
+    livros_formatados = []
 
-    for livro in livros:
-        print(", ".join(map(str, livro)))
+    for item in livros:
+        dicionario_livros = {
+            "id": item[0],
+            "titulo": item[1],
+            "categoria": item[2],
+            "autor": item[3],
+            "image_url": item[4]
+        }
+        livros_formatados.append(dicionario_livros)
 
-    return [
-        {"titulo": livro[0], "categoria": livro[1], "autor": livro[2], "image_url": livro[3]}
-        for livro in livros
-    ]
+
+    return jsonify(livros_formatados), 200
 
 @app.route("/doar", methods=["POST"])
 def doar():
